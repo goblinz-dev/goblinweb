@@ -440,17 +440,13 @@ const sendFeedback = async (choice) => {
   setError('');
   setVibe(choice);
   try {
-    await fetch('https://discord.com/api/webhooks/1370984700042022922/7XedtwZotVM7PlWn1rBuhZDrpe3v0O3cjq-EEevc2Cyx9rRbobfsPmUUapY0uIxdoPce', {
+    await fetch('https://v0-new-project-3zwykfhztfd-q4eiamace-hobgoblins-projects.vercel.app/api/send-discord', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        content: `New feedback received: ${choice}`,
-        embeds: [{
-          title: 'Feature Feedback',
-          description: `**Choice:** ${choice}\n**Feature Request:** ${feature}\n**User Agent:** ${window.navigator.userAgent}`,
-          color: 0x18fff6,
-          timestamp: new Date().toISOString()
-        }]
+        choice: choice,
+        feature: feature,
+        userAgent: window.navigator.userAgent
       })
     });
   } catch (e) {
