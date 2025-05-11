@@ -1,20 +1,210 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Copy, Shield, Terminal, Link2, Wand2, Zap, Ghost, User, MessageSquare, X, Info } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Volume2, Pause, Play, Terminal, User, Zap, Ghost, Link2, Copy, Shield, Wand2, MessageSquare, X, Info } from 'lucide-react';
 
-// Utility to generate a fake goblin import link
+const MP3S = [
+  {
+    url: 'https://r2.e-z.host/6c5f8624-f872-4768-acd5-6ad25ce66f4a/aiphn2hi.mp3',
+    title: 'Flex', artist: 'Rich Homie Quan'
+  },
+  {
+    url: 'https://r2.e-z.host/6c5f8624-f872-4768-acd5-6ad25ce66f4a/3ub22yfi.mp3',
+    title: 'Demons', artist: 'A$AP Rocky'
+  },
+  {
+    url: 'https://r2.e-z.host/6c5f8624-f872-4768-acd5-6ad25ce66f4a/fabalqqc.mp3',
+    title: 'Mason Cafe', artist: 'Larry June'
+  }
+];
+
+function pickRandom(arr) {
+  return Math.floor(Math.random() * arr.length);
+}
+
+function NeonMusicWidget({ onAudio, titleCb }) {
+  const [playing, setPlaying] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [track, setTrack] = useState(() => pickRandom(MP3S));
+  const [volume, setVolume] = useState(0.95);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof titleCb === 'function') titleCb(MP3S[track]);
+  }, [track]);
+
+  useEffect(() => {
+    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    audio.volume = volume;
+    if (playing) {
+      audio.play().catch(error => {
+        console.error('Error playing audio:', error);
+      });
+    } else {
+      audio.pause();
+    }
+  }, [playing, volume, track]);
+
+  const skip = dir => {
+    setTrack(t => {
+      let next = t + dir;
+      if (next < 0) next = MP3S.length - 1;
+      if (next >= MP3S.length) next = 0;
+      return next;
+    });
+    setTimeout(() => setPlaying(true), 100);
+  };
+
+  return (
+    <div className="fixed z-[99990] bottom-6 right-6 pointer-events-auto group select-none">
+      <div className={`transition-all duration-400 ${open ? 'scale-100 opacity-95' : 'scale-90 opacity-80'}`}
+        style={{
+          minWidth: open ? 330 : 54,
+          minHeight: open ? 132 : 54,
+          borderRadius: 20,
+          background: open ? 'linear-gradient(120deg,#181b37eb 70%,#25254d 100%)' : 'rgba(24,27,40,.15)',
+          boxShadow: '0 8px 24px #18fff655',
+          border: open ? '2px solid #a178ff99' : 'none',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+        {!open && (
+          <button onClick={() => { setOpen(true); setPlaying(true); }}
+            className="flex items-center justify-center w-14 h-14 rounded-full shadow-lg bg-gradient-to-tr from-[#18fff6e6] to-[#a178ffeb] border-2 border-[#ffd700d9] hover:scale-110 transition relative"
+            aria-label="Open music player"
+          >
+            {playing ? <Pause size={33} className="text-[#19192e]" /> : <Play size={33} className="text-[#19192e]" />}
+            <span className="absolute right-1 top-1 bg-[#282946f5] rounded-md p-1 shadow-lg text-[#ffd700d5] text-[10px] font-bold border border-[#18fff6a2] animate-bounceX">▲</span>
+          </button>
+        )}
+        {open && (
+          <>
+            <div className="w-full flex items-center gap-2 mb-1 px-2 mt-2" style={{ minHeight: 38 }}>
+              <button onClick={() => skip(-1)} aria-label="Previous" className="rounded-md p-2 hover:bg-[#282946b5] transition"><ChevronLeft size={23} /></button>
+              <button
+                aria-label={playing ? 'Pause' : 'Play'}
+                onClick={() => setPlaying(v => !v)}
+                className="rounded-full bg-gradient-to-r from-[#18fff6] to-[#a178ff] shadow px-3 py-2 font-black text-[#191a27] text-lg"
+              >
+                {playing ? <Pause className="inline w-6 h-6" /> : <Play className="inline w-6 h-6" />}
+              </button>
+              <button onClick={() => skip(+1)} aria-label="Next" className="rounded-md p-2 hover:bg-[#282946b5] transition"><ChevronRight size={23} /></button>
+              <span className="flex flex-col items-start ml-2">
+                <span className="text-[#a178ff] font-bold text-base leading-none tracking-tight animate-gradient">{MP3S[track].title}</span>
+                <span className="text-xs text-[#18fff6d1]">{MP3S[track].artist}</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-2 w-full mb-1 px-5 mt-1">
+              <Volume2 className="text-[#ffd700a0] w-5 h-5" />
+              <input type="range" min={0} max={1} step={0.01} value={volume}
+                onChange={e => setVolume(Number(e.target.value))} className="accent-[#a178ff] w-20" style={{ maxWidth: 72 }} />
+            </div>
+            <audio src={MP3S[track].url} ref={audioRef} autoPlay={playing} loop preload="auto" />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FeatureGrid() {
+  const features = [
+    { icon: <Terminal className="text-[#a178ff]" />, title: "Instant Shell", desc: "Get remote terminal access instantly with a single import." },
+    { icon: <User className="text-[#18fff6]" />, title: "Personal Links", desc: "Unique import link per device, per-user command and tracking." },
+    { icon: <Zap className="text-[#a178ff]" />, title: "Lightning Fast", desc: "Realtime dashboard, live command/control from any browser." },
+    { icon: <Ghost className="text-[#18fff6]" />, title: "Encrypted Traffic", desc: "Military-grade encryption and traffic concealment by default." },
+    { icon: <Link2 className="text-[#a178ff]" />, title: "Custom Builds", desc: "Build with options: keylogger, persistence, script injection, and more." },
+  ];
+  const gridRef = useRef(null);
+  const [anim, setAnim] = useState(features.map(()=>({pulse:0, bounce:1, rot:0, glow:0, wiggle:0})));
+  const [tiltVals, setTiltVals] = useState(features.map(()=>({x:0,y:0})));
+
+  useEffect(() => {
+    let raf;
+    function animate() {
+      raf = requestAnimationFrame(animate);
+      setAnim(anim => anim.map((old,i) => {
+        const t = performance.now()/1000 + i*0.18;
+        const bounce = 1 + 0.14*Math.sin(t*8 + i) * (1-Math.abs(Math.cos(t/0.9))*.5) + 0.10*Math.sin(t*2.2+i*2);
+        const rot = Math.sin(t*2 + i*0.8) * 8 + Math.sin(t*4+i*2.6)*2;
+        const glow = .47 + .45*Math.abs(Math.sin(t * 2 + i));
+        const wiggle = Math.sin(t*15+i*1.7) * 7;
+        const pulse = Math.max(0, old.pulse-0.14);
+        return {pulse, bounce, rot, glow, wiggle};
+      }));
+    }
+    animate();
+    const pulseHandler = ()=>{
+      setAnim(anim=>anim.map((a,i)=>({...a,pulse:1})));
+    };
+    window.addEventListener('goblin-pulse', pulseHandler);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('goblin-pulse', pulseHandler); };
+  }, []);
+  useEffect(() => {
+    function onMouseMove(e) {
+      if (!gridRef.current) return;
+      const rect = gridRef.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / rect.width, dy = (e.clientY - cy) / rect.height;
+      setTiltVals(() => features.map((_, i) => ({ x: dx * 7 * (i + 1), y: dy * 8 * (i + 1) })));
+    }
+    window.addEventListener('mousemove', onMouseMove);
+    return () => window.removeEventListener('mousemove', onMouseMove);
+  }, []);
+
+  return (
+    <section className="w-full flex flex-col items-center py-14 z-10">
+      <div className="text-[29px] font-bold mb-8 text-[#a178ff]">Features</div>
+      <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 max-w-5xl w-[95vw]">
+        {features.map(({ icon, title, desc }, i) => (
+          <div key={title}
+            style={{
+              transform: `translateX(${anim[i].wiggle}px) rotateY(${tiltVals[i].x / 3 + anim[i].rot + anim[i].pulse*3}deg)`+
+                        `rotateX(${tiltVals[i].y / 3 + anim[i].rot/2 + anim[i].pulse*3}deg)`+
+                        `scale(${anim[i].bounce * (1+anim[i].pulse*0.13)})`,
+              boxShadow: `0 0 ${16+anim[i].glow*30 + anim[i].pulse*26}px #18fff6b7, 0 3px 35px #a178ff22`,
+              transition: 'transform .23s cubic-bezier(.62,.25,.36,1),box-shadow .11s',
+            }}
+            className="bg-[#191c33e0] border border-[#28294672] p-7 rounded-xl flex flex-col items-start shadow-md hover:scale-105 transition will-change-transform will-change-shadow"
+          >
+            <div className="mb-3">{icon}</div>
+            <div className="text-xl font-semibold text-[#fff] mb-1">{title}</div>
+            <div className="text-base text-[#18fff6a6]">{desc}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function NoScriptSpotify() {
+  return <noscript>
+    <div style={{position:'fixed',bottom:20,right:16, zIndex:9999, background:'rgba(24,27,40,0.94)',border:'2px solid #a178ff77',borderRadius:18,padding:14,boxShadow:'0 6px 19px #18fff620'}}>
+      <div style={{color:'#18fff6',fontWeight:700,marginBottom:6}}>Music:</div>
+      <iframe
+        title="Spotify Player"
+        src="https://open.spotify.com/embed/track/4T0ScSPdQKmGvruK7pavNP?utm_source=generator"
+        width="310" height="60" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+        style={{borderRadius:10}}
+      />
+      <div style={{color:'#a178ff',fontSize:13,marginTop:8}}>Enable JavaScript for interactive controls.</div>
+    </div>
+  </noscript>;
+}
+
 function randomGoblinLink() {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let token = Array.from({length: 9}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   return `https://goblin-util.com/link_${token}`;
 }
 
-// --- Aurora BG Canvas ---
 function AuroraBg() {
   React.useEffect(() => {
-    const canvas = document.getElementById('aurora-bg') as HTMLCanvasElement | null;
+    const canvas = document.getElementById('aurora-bg');
     if (!canvas) return;
-    let raf: number;
-    const ctx = canvas.getContext('2d')!;
+    let raf;
+    const ctx = canvas.getContext('2d');
     function draw() {
       const w = canvas.width = window.innerWidth;
       const h = canvas.height = window.innerHeight;
@@ -42,7 +232,7 @@ function AuroraBg() {
   return <canvas id="aurora-bg" style={{position:'fixed',zIndex:0,top:0,left:0,width:'100vw',height:'100vh',pointerEvents:'none',opacity:0.19}} />;
 }
 
-function BitcoinLoader({done}:{done:boolean}) {
+function BitcoinLoader({done}) {
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center z-[9999] transition-opacity duration-700 bg-[linear-gradient(135deg,#16171a_60%,#282946_100%)] ${done ? 'opacity-0 pointer-events-none':'opacity-100'}`}
@@ -51,7 +241,7 @@ function BitcoinLoader({done}:{done:boolean}) {
       <svg style={{width:90,height:90, filter:'drop-shadow(0 0 22px #fac901cc) drop-shadow(0 0 36px #ffe87388)'}} viewBox="0 0 64 64" fill="none" className="animate-spin-fast">
         <ellipse cx="32" cy="32" rx="32" ry="32" fill="#ffd700" />
         <path d="M43 32c0 6.075-4.925 11-11 11s-11-4.925-11-11 4.925-11 11-11 11 4.925 11 11zm-17.415 0A6.415 6.415 0 1032 25.585 6.422 6.422 0 0025.585 32z" fill="#f7931a" />
-        <path d="M33.57 25.61a4.205 4.205 0 0 0-2.77-.57v1.604a3.264 3.264 0 0 1 2.2.457 1.165 1.165 0 0 1 .529.986c0 .234-.062.445-.185.629a1.098 1.098 0 0 1-.516.385 5.598 5.598 0 0 1-1.799.172l-.205.008v2.355l.094-.002c.88-.013 1.498-.046 1.85-.098a2.2 2.2 0 0 0 1.017-.267 1.515 1.515 0 0 0 .604-.57 1.401 1.401 0 0 0 .184-.68c0-.43-.157-.792-.47-1.076a1.395 1.395 0 0 0-.81-.332zm-2.218 7.176v-1.707a3.913 3.913 0 0 1-2.151-.656 1.276 1.276 0 0 1-.506-1.013c0-.238.06-.45.18-.634.12-.184.26-.307.418-.367a5.703 5.703 0 0 1 1.977-.207v-2.197l-.213.007c-.74.024-1.326.091-1.757.197a2.073 2.073 0 0 0-.822.437c-.207.185-.363.386-.466.601a1.267 1.267 0 0 0-.135.568c0 .145.032.287.098.427.066.14.178.273.336.397a4.16 4.16 0 0 0 1.591.54zm1.297 2.303v-1.396a4.074 4.074 0 0 0 2.573-.684 2.174 2.174 0 0 0 .88-.981c.227-.422.34-.9.34-1.44a2.846 2.846 0 0 0-1.13-2.238 3.388 3.388 0 0 0-2.336-.833V20.86h-1.232v1.318c-1.056.085-2.013.415-2.797.969a2.58 2.58 0 0 0-1.062 1.676c-.163.637-.244 1.354-.244 2.144 0 1.165.151 2.074.45 2.737.3.663.793 1.19 1.5a4.852 4.852 0 0 0 2.532.422v1.38h1.232z" fill="#fff" />
+        <path d="M33.57 25.61a4.205 4.205 0 0 0-2.77-.57v1.604a3.264 3.264 0 0 1 2.2.457 1.165 1.165 0 0 1 .529.986c0 .234-.062.445-.185.629a1.098 1.098 0 0 1-.516.385 5.598 5.598 0 0 1-1.799.172l-.205.008v2.355l.094-.002c.88-.013 1.498-.046 1.85-.098a2.2 2.2 0 0 0 1.017-.267 1.515 1.515 0 0 0 .604-.57 1.401 1.401 0 0 0 .184-.68c0-.43-.157-.792-.47-1.076a1.395 1.395 0 0 0-.81-.332zm-2.218 7.176v-1.707a3.913 3.913 0 0 0-2.151-.656 1.276 1.276 0 0 1-.506-1.013c0-.238.06-.45.18-.634.12-.184.26-.307.418-.367a5.703 5.703 0 0 1 1.977-.207v-2.197l-.213.007c-.74.024-1.326.091-1.757.197a2.073 2.073 0 0 0-.822.437c-.207.185-.363.386-.466.601a1.267 1.267 0 0 0-.135.568c0 .145.032.287.098.427.066.14.178.273.336.397a4.16 4.16 0 0 0 1.591.54zm1.297 2.303v-1.396a4.074 4.074 0 0 0 2.573-.684 2.174 2.174 0 0 0 .88-.981c.227-.422.34-.9.34-1.44a2.846 2.846 0 0 0-1.13-2.238 3.388 3.388 0 0 0-2.336-.833V20.86h-1.232v1.318c-1.056.085-2.013.415-2.797.969a2.58 2.58 0 0 0-1.062 1.676c-.163.637-.244 1.354-.244 2.144 0 1.165.151 2.074.45 2.737.3.663.793 1.19 1.5a4.852 4.852 0 0 0 2.532.422v1.38h1.232z" fill="#fff" />
       </svg>
       <style>{`.animate-spin-fast{animation:spin 1.35s linear infinite}`}</style>
     </div>
@@ -81,10 +271,9 @@ function Hero() {
   )
 }
 
-function ImportLinkHighlight({visible}:{visible:boolean}) {
-  const ref = useRef<HTMLDivElement>(null);
+function ImportLinkHighlight({visible}) {
+  const ref = useRef(null);
 
-  // Animate reveal
   useEffect(() => {
     if (visible && ref.current) {
       ref.current.style.opacity = '1';
@@ -176,7 +365,6 @@ function ImportLinkHighlight({visible}:{visible:boolean}) {
             ? (<span className='text-[#a178ff] animate-popIn'>Copied!</span>)
             : (<span>{generated? 'Your remote utility, one import away.' : 'Click Generate Link to see your unique one-liner.'}</span>)}
         </div>
-        {/* Improved usage guide design */}
         {showGuide && (
         <div className="mt-7 animate-fadeIn relative text-left bg-[#161821f6] rounded-xl px-7 py-7 border-2 border-[#18fff688] max-w-lg w-full shadow-lg flex flex-row gap-4 items-start">
           <div className="mt-2"><Info className="w-8 h-8 text-[#18fff6] animate-wiggle" /></div>
@@ -196,32 +384,7 @@ function ImportLinkHighlight({visible}:{visible:boolean}) {
   );
 }
 
-function FeatureGrid() {
-  const features = [
-    { icon: <Terminal className="text-[#a178ff]" />, title: "Instant Shell", desc: "Get remote terminal access instantly with a single import." },
-    { icon: <User className="text-[#18fff6]" />, title: "Personal Links", desc: "Unique import link per device, per-user command and tracking." },
-    { icon: <Zap className="text-[#a178ff]" />, title: "Lightning Fast", desc: "Realtime dashboard, live command/control from any browser." },
-    { icon: <Ghost className="text-[#18fff6]" />, title: "Encrypted Traffic", desc: "Military-grade encryption and traffic concealment by default." },
-    { icon: <Link2 className="text-[#a178ff]" />, title: "Custom Builds", desc: "Build with options: keylogger, persistence, script injection, and more." },
-  ];
-  return (
-    <section className="w-full flex flex-col items-center py-14 z-10">
-      <div className="text-[29px] font-bold mb-8 text-[#a178ff]">Features</div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 max-w-5xl w-[95vw]">
-        {features.map(({icon, title, desc}, i) => (
-          <div key={title} className="bg-[#191c33e0] border border-[#28294672] p-7 rounded-xl flex flex-col items-start shadow-md hover:scale-105 transition-transform">
-            <div className="mb-3">{icon}</div>
-            <div className="text-xl font-semibold text-[#fff] mb-1">{title}</div>
-            <div className="text-base text-[#18fff6a6]">{desc}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function DashboardPreview() {
-  // Placeholder for GIF - update with your GIF URL or upload later
   const GIF_URL = 'https://r2.e-z.host/6c5f8624-f872-4768-acd5-6ad25ce66f4a/uwj80iyk.gif';
   return (
     <section className="flex flex-col items-center py-16 w-full z-10">
@@ -235,7 +398,6 @@ function DashboardPreview() {
 }
 
 function TelegramCTA() {
-  // Animated, interactive highlight
   return (
     <section className="flex flex-col items-center justify-center py-16 bg-gradient-to-t from-[#1b222e00] to-[#14141c1a] w-full relative z-10">
       <div className="text-2xl font-bold mb-4 text-[#18fff6]">Contact & Updates</div>
@@ -266,18 +428,17 @@ function TelegramCTA() {
   );
 }
 
-function FeedbackModal({open, onClose}:{open:boolean,onClose:()=>void}) {
+function FeedbackModal({open, onClose}) {
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [feature, setFeature] = useState('');
-  const [vibe, setVibe] = useState(''); // Yes/No/Maybe
+  const [vibe, setVibe] = useState('');
   const [error, setError] = useState('');
 
-const sendFeedback = async (choice: string) => {
+const sendFeedback = async (choice) => {
   setSending(true);
   setError('');
   setVibe(choice);
-  // POST to Discord webhook
   try {
     await fetch('https://discord.com/api/webhooks/1370984700042022922/7XedtwZotVM7PlWn1rBuhZDrpe3v0O3cjq-EEevc2Cyx9rRbobfsPmUUapY0uIxdoPce', {
       method: 'POST',
@@ -298,7 +459,6 @@ const sendFeedback = async (choice: string) => {
   setSent(true);
   setSending(false);
 };
-
 
   if (!open) return null;
   return (
@@ -356,7 +516,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [showImport, setShowImport] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const importRef = useRef<HTMLElement>(null);
+  const importRef = useRef(null);
 
   useEffect(() => {
     const t = setTimeout(() => setLoading(false), 2100);
@@ -395,8 +555,7 @@ export default function App() {
     return () => style.remove();
   }, []);
 
-  // Scroll and animate on CTA click
-  function handleSeeImportLink(e:any) {
+  function handleSeeImportLink(e) {
     e.preventDefault();
     setShowImport(true);
     setTimeout(() => {
@@ -409,6 +568,8 @@ export default function App() {
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-[linear-gradient(132deg,#181255_80%,#22f7e7_100%)]" style={{overflow:'hidden'}}>
       <BitcoinLoader done={!loading} />
       <AuroraBg />
+      <NoScriptSpotify />
+      <NeonMusicWidget />
       <div className={`relative z-10 w-full transition-opacity duration-700 ${loading?'opacity-0 pointer-events-none':'opacity-100'}`}>
         <Hero />
         <div className="flex justify-center mt-6">
