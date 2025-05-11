@@ -5,7 +5,7 @@
 <div align="center">
   <img src="https://open.spotify.com/embed/track/4T0ScSPdQKmGvruK7pavNP?utm_source=generator" width="240" height="70" style="border-radius:10px;box-shadow:0 8px 18px #18fff688"/>
   <br/>
-  <b>Now playing: <i>Flex (Ooh, Ooh, Ooh)</i> by Rich Homie Quan • <span style="color:#18fff6">Live neon music widget on your dashboard!</span></b>
+  <b>Now playing: <i>Flex (Ooh, Ooh, Ooh)</i> by Rich Homie Quan •</b>
 </div>
 
 ---
@@ -22,8 +22,7 @@ A remote backdoor util. That you can simply just import it and boom. Use at your
 - <b>🚀 Lightning Fast:</b> Live dashboard, real-time command/control.
 - <b>🔐 Encrypted Traffic:</b> Military-grade encryption by default.
 - <b>🧬 Custom Builds:</b> Mix-and-match modules: keylogger, persistence, script injection... you want it, it’s here.
-- <b>💠 Animated UI:</b> Feature boxes sway with your mouse & bounce to the beat. Pure vapor energy!
-
+- <b>💠 Animated UI:</b> Everything is animated my eyes!
 ---
 
 ## 🖥️ Live Demo
@@ -33,7 +32,7 @@ Just run locally:<br>
 ---
 
 ## 🗯️ Status
-> <b>:construction: Under Development • Launching 2025</b><br>Not malware, probably. For legal, educational, and glowy entertainment only. Telegram: <a href="https://t.me/GoblinCrew">@GoblinCrew</a>
+> <b>:construction: Under Development • Launching 2025</b><br>Not malware, probably. For legal, educational, and entertainment only. Telegram: <a href="https://t.me/GoblinCrew">@GoblinCrew</a>
 
 ---
 
