@@ -1,6 +1,6 @@
 # 🦠 Goblin Util
 
-**The All-in-One Remote Utility – Strikingly Fast. Strikingly Dangerous.**
+**The All-in-One Remote Utility – Strikingly Smooth. Strikingly Dangerous.**
 
 <div align="center">
   <img src="https://open.spotify.com/embed/track/4T0ScSPdQKmGvruK7pavNP?utm_source=generator" width="240" height="70" style="border-radius:10px;box-shadow:0 8px 18px #18fff688"/>
